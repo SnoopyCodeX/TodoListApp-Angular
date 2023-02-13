@@ -28,9 +28,9 @@ export class CrudService {
     return this.http.delete<Task>(`${this.serviceURL}/${task.id}`);
   }
 
-  editTask(task: Task) : Observable<Task> {
+  editTask(id: number, task: Task) : Observable<Task> {
     return this.http.put<Task>(
-      `${this.serviceURL}/${task.id}`,
+      `${this.serviceURL}/${id}`,
       task
     );
   }
