@@ -1,11 +1,19 @@
 # TodoListApp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.1.3.
 This project is a simple Todo List App made using AngularJS and Bootstrap CSS.
+
+## Project Preview
+| **Preview 1** | **Preview 2** |
+|---------------|---------------|
+| ![p1](./previews/preview1.png) | ![p2](./previews/preview2.png) |
+| **Preview 3** | **Preview 4** |
+| ![p3](./previews/preview3.png) | ![p4](./previews/preview4.png) |
+
 
 ## Development server
 
 Before running the app, please start the Json-Server first by typing `json-server --watch db.json`.
+
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
 ## Build
