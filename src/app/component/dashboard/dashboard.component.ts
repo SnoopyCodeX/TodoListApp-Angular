@@ -10,8 +10,10 @@ import { CrudService } from 'src/app/service/crud.service';
 })
 export class DashboardComponent implements  OnInit {
 
-  task: Task = new Task();
+  isLoading: boolean = false;
+  isDeleting: boolean = false;
   tasks: Task[] = [];
+  editedTask?: Task;
 
   taskName: string = '';
   editedTaskName: string = '';
@@ -24,11 +26,6 @@ export class DashboardComponent implements  OnInit {
   constructor(private crudService: CrudService) {}
 
   ngOnInit(): void {
-    this.taskName = '';
-    this.editedTaskName = '';
-
-    this.task = new Task();
-    this.tasks = [];
     this.getAllTask();
   }
 
@@ -38,52 +35,91 @@ export class DashboardComponent implements  OnInit {
         this.tasks = response;
       },
 
-      error: (error) => alert(error)
+      error: (error) => {
+        this.isLoading = false;
+        console.log(error.message)
+      }
     });
   }
 
   addTask(): void {
+    if(this.isLoading) return;
+    this.isLoading = true;
+
     if(!this.taskName.trim())
       return;
 
-    this.task.task_name = this.taskName;
-    this.crudService.addTask(this.task).subscribe({
+    const task = new Task(this.tasks.length + 1, this.taskName);
+    this.crudService.addTask(task).subscribe({
       next: (response: Task) => {
-        this.ngOnInit();
+        this.tasks.push(response);
         this.taskName = '';
+
+        this.isLoading = false;
       },
-      error: (error) => alert(error)
+      error: (error) => {
+        this.isLoading = false;
+        console.log(error.message)
+      }
     });
   }
 
-  editTask(): void {
-    this.task.task_name = this.editedTaskName;
-    this.crudService.editTask(this.task).subscribe({
-      next: (response: Task) => this.ngOnInit(),
-      error: (error) => alert(error)
+  editTask(edit: Task, done: boolean = false): void {
+    if(this.isLoading) return;
+    this.isLoading = true;
+
+    if(!edit.id) {
+      this.isLoading = false;
+      return;
+    }
+
+    if(edit.isOpen) {
+      edit.isOpen = false;
+    }
+
+    const task = new Task(edit.id, this.editedTaskName === "" ? edit.task_name : this.editedTaskName);
+    task.done = done ?? edit.done;
+
+    if(this.isDeleting) {
+      task.deleted();
+    }
+
+    this.crudService.editTask(edit.id, task).subscribe({
+      next: (response: Task) => {
+        const list = this.tasks.map((task) => {
+          if(task.id === response.id) {
+            return response;
+          }
+          return task;
+        });
+
+        this.tasks = list;
+        this.isLoading = false;
+        this.isDeleting = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.isDeleting = false;
+        console.log(error.message)
+      }
     });
   }
 
   deleteTask(task: Task): void {
-    this.crudService.deleteTask(task).subscribe({
-      next: (response: Task) => this.ngOnInit(),
-      error: (error) => alert(error)
-    });
+    if(this.isDeleting) return;
+    this.isDeleting = true;
+
+    this.editTask(task);
   }
 
-  doneTask(_task: Task): void {
-    this.task = _task;
-    this.task.done = !_task.done;
-
-    this.crudService.editTask(this.task).subscribe({
-      next: (response: Task) => this.ngOnInit(),
-      error: (error) => console.log(error)
-    });
+  modalEditTask() {
+    this.editTask(this.editedTask!);
   }
 
   call(task: Task): void {
-    this.task = task;
     this.editedTaskName = task.task_name;
+    this.editedTask = task;
+    task.isOpen = true;
   }
 
   keypress(event: KeyboardEvent): void {

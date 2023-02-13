@@ -20,7 +20,7 @@
 
         <div style="overflow-y: auto; height: 350px;">
           <div class="m-3" *ngFor="let task of tasks">
-            <div class="p-2 shadow border">
+            <div class="p-2 shadow border" *ngIf="task.isDeleted === false">
               <div class="input-group row ps-3">
                 <div class="card col-md-10 border-0 {{task.done ? 'text-decoration-line-through text-success' : ''}}">
                   {{task.task_name}}
@@ -30,14 +30,17 @@
                   <fa-icon [icon]="faPencil"></fa-icon>
                 </button>
 
-                <button class="btn {{task.done ? 'btn-outline-danger' : 'btn-outline-success'}} col me-2" (click)="doneTask(task)">
+                <button class="btn {{task.done ? 'btn-outline-danger' : 'btn-outline-success'}} col me-2" (click)="editTask(task, !task.done)">
                   <fa-icon [icon]="!task.done ? faCheck : faCancel"></fa-icon>
                 </button>
 
                 <button class="btn btn-outline-danger col" (click)="deleteTask(task)">
                   <fa-icon [icon]="faTrashcan"></fa-icon>
                 </button>
+
+
               </div>
+
             </div>
           </div>
         </div>
@@ -53,7 +56,7 @@
               <div class="modal-body">
                 <div class="input-group p-4">
                   <input type="text" class="form-control" placeholder="Task name" name="task_name" [(ngModel)]="editedTaskName">
-                  <button class="btn btn-outline-success" data-bs-dismiss="modal" (click)="editTask()">Update</button>
+                  <button class="btn btn-outline-success" data-bs-dismiss="modal" (click)="modalEditTask()">Update</button>
                 </div>
               </div>
             </div>
